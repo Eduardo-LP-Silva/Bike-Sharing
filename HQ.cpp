@@ -279,6 +279,7 @@ void HQ::Rand_Localization()
 void HQ::FastForward_Time(int month, int day, int hour, int minute, Date &global_date)
 {
 	Date init_date = global_date;
+	HashTabDestroyForms::iterator it;
 
 	global_date.addMonth(month);
 	global_date.addDay(day);
@@ -286,10 +287,21 @@ void HQ::FastForward_Time(int month, int day, int hour, int minute, Date &global
 	global_date.addMinutes(minute);
 
 	if (((global_date.getDay() > init_date.getDay()) && ((init_date.getDay() < 27) && (global_date.getDay() >= 27)))
-		|| (global_date.getMonth() > init_date.getMonth()))
+		|| (global_date.getMonth() > init_date.getMonth())
+		|| month == 12)
 		Reset_Members_MonthlyTime();
 	else
 		addHoursActiveMembers(global_date);
+
+	for (it = hash_table.begin(); it != hash_table.end(); it++)
+		if ((it->getDate() < global_date) && (!it->isDestroyed()))
+		{
+			Destroy_Form df = *it;
+			df.setDestroyed();
+			it = hash_table.erase(it);
+			hash_table.insert(df);
+			it = hash_table.find(df);
+		}
 
 	Rand_Localization();
 }
@@ -479,18 +491,17 @@ void HQ::Options_Menu(Date &global_date)
 {
 	int opt;
 
-	cout << "+------------------------+\n"
-		<< "| 1 - Add/Remove member  |\n"
-		<< "+------------------------+\n"
-		<< "| 2 - Add/Remove station |\n"
-		<< "+------------------------+\n"
-		<< "| 3 - Fast forward       |\n"
-		<< "+------------------------+\n"
-		<< "| 4 - Go back            |\n"
-		<< "+------------------------+\n" << endl;
-
+	cout << "+-----------------------+------------------------+\n"
+		<< "| 1 - Add/Remove member | 2 - Add/Remove station |\n"
+		<< "+-----------------------+------------------------+\n"
+		<< "| 3 - Fast Forward      | 4 - Buy parts          |\n"
+		<< "+-----------------------+------------------------+\n"
+		<< "| 5 - Buy bikes         | 6 - Destroy bikes      |\n"
+		<< "+-----------------------+------------------------+\n"
+		<< "|                   7 - Go back                  |\n"
+		<< "+-----------------------+------------------------+\n" << endl;
 	cin >> opt;
-	InvalidInput(4, opt);
+	InvalidInput(7, opt);
 	cin.clear();
 	cin.ignore(1000, '\n');
 
@@ -508,8 +519,68 @@ void HQ::Options_Menu(Date &global_date)
 			fast_forward_menu(*this, global_date);
 
 		case 4:
+
+			break;
+
+		case 5:
+
+			break;
+
+		case 6:
+			Destruction_Menu(global_date);
+			break;
+
+		case 7:
 			break;
 	}
+}
+
+void HQ::Destruction_Menu(const Date &global_date)
+{
+	int opt;
+
+	do
+	{
+		cout << "+---------------------------------------------+\n"
+			<< "| 1 - Schedule bike for destruction           |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 2 - View bikes scheduled for destruction    |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 3 - Remove bike from scheduled destruction  |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 4 - Go back                                 |\n"
+			<< "+---------------------------------------------+\n" << endl;
+
+		cin >> opt;
+		InvalidInput(4, opt);
+
+		try
+		{
+			switch (opt)
+			{
+			case 1:
+				destroy_bike(global_date);
+				break;
+
+			case 2:
+				show_bikes_to_destroy();
+				break;
+
+			case 3:
+				remove_from_table(global_date);
+				break;
+
+			case 4:
+				break;
+			}
+		}
+		catch (InvalidDate)
+		{
+			cout << "Invalid Date\n";
+		}
+
+	} while (opt != 4);
+
 }
 
 void HQ::Add_remove_member_menu()
@@ -938,7 +1009,7 @@ void HQ::read_info(Date global_date)
 	int month_hours, i, month, day, hour, minute, max_spots;
 	int x, y;
 	bool member = false;
-	Bike *user_bike, *station_bike;
+	Bike *user_bike, *station_bike, *destruct_bike;
 	User *ready_active_user = new User("null");
 	Station *ready_station;
 
@@ -1053,12 +1124,44 @@ void HQ::read_info(Date global_date)
 	}
 
 	read.close();
+
+	read.open("Destruction_Table.txt");
+
+	while (getline(read, txt_line))
+	{
+		bike_id = txt_line;
+
+		if (bike_id == "US")
+			destruct_bike = new Urban_simple_b(global_date);
+		else
+			if (bike_id == "UB")
+				destruct_bike = new Urban_b(global_date);
+			else
+				if (bike_id == "CH")
+					destruct_bike = new Child_b(global_date);
+				else
+					destruct_bike = new Race_b(global_date);
+
+		getline(read, txt_line);
+
+		sstr.str(txt_line);
+
+		sstr >> day >> comma >> month >> comma >> hour >> comma >> minute;
+		
+		Date *d = new Date(month, day, hour, minute);
+
+		hash_table.insert(Destroy_Form(destruct_bike, *d));
+	}
+
+	sstr.clear();
+	read.close();
 }
 
 void HQ::write_info() const
 {
 	ofstream write;
 	unsigned int i, j;
+	HashTabDestroyForms::iterator it;
 
 	write.open("Active_Users.txt");
 
@@ -1099,4 +1202,257 @@ void HQ::write_info() const
 	}
 
 	write.close();
+
+	write.open("Destruction_Table.txt");
+
+	for (it = hash_table.begin(); it != hash_table.end(); it++)
+	{
+		Date dt = it->getDate();
+
+		write << it->getBike()->getID() << endl
+			<< dt.getDay() << " / " << dt.getMonth() << " ; "
+			<< dt.getHour() << " : " << dt.getMinutes() << endl;
+	}
+
+	write.close();
+}
+
+void HQ::destroy_bike(Date g_date)
+{
+	int month, day, hour, minutes;
+
+	cout << "Date of Destruction\n" << endl
+		<< "Month: ";
+	cin >> month;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> month;
+	}
+
+	cout << endl << "Day: ";
+	cin >> day;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> day;
+	}
+
+	cout << endl << "Hour: ";
+	cin >> hour;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> hour;
+	}
+
+	cout << endl << "Minutes: ";
+	cin >> minutes;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> minutes;
+	}
+
+	Date dt(month, day, hour, minutes);
+
+	if (dt < g_date)
+		throw(InvalidDate(dt));
+
+	int opt;
+
+	cout << "+------------------+\n"
+		<< "|   Type of bike   |\n"
+		<< "+------------------+\n"
+		<< "|     1 - Urban    |\n"
+		<< "+------------------+\n"
+		<< "| 2 - Simple Urban |\n"
+		<< "+------------------+\n"
+		<< "|     3 - Child    |\n"
+		<< "+------------------+\n"
+		<< "|    4 - Racing    |\n"
+		<< "+------------------+\n" << endl;
+
+	cin >> opt;
+
+	InvalidInput(4, opt);
+	
+	Bike *bk = new Urban_b(g_date);
+
+	switch (opt)
+	{
+	case 1:
+		bk = new Urban_b(g_date);
+		break;
+
+	case 2:
+		bk = new Urban_simple_b(g_date);
+		break;
+
+	case 3:
+		bk = new Child_b(g_date);
+		break;
+
+	case 4:
+		bk = new Race_b(g_date);
+		break;
+	}
+
+	Destroy_Form *df = new Destroy_Form(bk, dt);
+
+	if (hash_table.find(*df) != hash_table.end())
+	{
+		cout << "Another bike of the same type is already scheduled to be destroyed at the same date.\n";
+		return;
+	}
+	else
+		hash_table.insert(*df);
+}
+
+void HQ::show_bikes_to_destroy() const
+{
+	HashTabDestroyForms::iterator it;
+
+	cout << endl
+		<< "Bike type | Date of destruction | Destoyed\n";
+
+	for (it = hash_table.begin(); it != hash_table.end(); it++)
+	{
+		Date d = it->getDate();
+		string bike_id;
+	
+		bike_id = it->getBike()->getID();
+
+		if (bike_id == "US")
+			cout << "Simple Urban";
+		else
+			if (bike_id == "UB")
+				cout << "Urban";
+			else
+				if (bike_id == "CH")
+					cout << "Child";
+				else
+					cout << "Racing";
+
+			cout <<" | " << d.getDay() << "/" << d.getMonth() << " ; "
+			<< d.getHour() << ":" << d.getMinutes() << " | ";
+
+		if (it->isDestroyed())
+			cout << "Yes\n";
+		else
+			cout << "No\n";
+	}
+}
+
+void HQ::remove_from_table(Date g_date)
+{
+	int month, day, hour, minutes;
+
+	cout << "Date of Destruction\n" << endl
+		<< "Month: ";
+	cin >> month;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> month;
+	}
+
+	cout << endl << "Day: ";
+	cin >> day;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> day;
+	}
+
+	cout << endl << "Hour: ";
+	cin >> hour;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> hour;
+	}
+
+	cout << endl << "Minutes: ";
+	cin >> minutes;
+
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Invalid Input. Try again.\n";
+		cin >> minutes;
+	}
+
+	Date dt(month, day, hour, minutes);
+
+	int opt;
+
+	cout << "+------------------+\n"
+		<< "|   Type of bike   |\n"
+		<< "+------------------+\n"
+		<< "|     1 - Urban    |\n"
+		<< "+------------------+\n"
+		<< "| 2 - Simple Urban |\n"
+		<< "+------------------+\n"
+		<< "|     3 - Child    |\n"
+		<< "+------------------+\n"
+		<< "|    4 - Racing    |\n"
+		<< "+------------------+\n" << endl;
+
+	cin >> opt;
+
+	InvalidInput(4, opt);
+
+	Bike *bk = new Urban_b(g_date);
+
+	switch (opt)
+	{
+	case 1:
+		bk = new Urban_b(g_date);
+		break;
+
+	case 2:
+		bk = new Urban_simple_b(g_date);
+		break;
+
+	case 3:
+		bk = new Child_b(g_date);
+		break;
+
+	case 4:
+		bk = new Race_b(g_date);
+		break;
+	}
+
+	Destroy_Form *df = new Destroy_Form(bk, dt);
+
+	HashTabDestroyForms::iterator it = hash_table.find(*df);
+
+	if (it != hash_table.end())
+		hash_table.erase(it);
+	else
+		cout << "Bike not found.\n";
+
 }

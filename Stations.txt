@@ -9,7 +9,7 @@ CH , RC , RC , US , CH , RC , US , US , US ;
 CEPSA
 5 , 10
 15
-UB , US , CH , CH , CH , RC , RC , RC , RC ;
+UB , US , CH , CH , CH , RC , RC ;
 Sao Joao
 1 , 1
 20

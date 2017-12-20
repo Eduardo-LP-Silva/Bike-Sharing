@@ -120,3 +120,29 @@ int Date::operator-(const Date &date1) const
 
 	return subtraction_result;
 }
+
+bool Date::operator<(const Date &dt1) const
+{
+	if (month != dt1.month)
+		return month < dt1.month;
+	else
+		if (day != dt1.day)
+			return day < dt1.day;
+		else
+			if (hour != dt1.hour)
+				return hour < dt1.hour;
+			else
+				return minutes < dt1.minutes;
+}
+
+bool Date::operator==(const Date &dt1) const
+{
+	return ((month == dt1.month) && (day == dt1.day) && (hour == dt1.hour) && (minutes == dt1.minutes));
+}
+
+InvalidDate::InvalidDate(Date d) : dt(d) {}
+
+Date InvalidDate::getDate() const
+{
+	return dt;
+}

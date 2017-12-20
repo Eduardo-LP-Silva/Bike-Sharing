@@ -29,6 +29,17 @@ public:
 	void addHour(int h);
 	void addMinutes(int min);
 	int operator-(const Date &date1) const;
+	bool operator<(const Date &date1) const;
+	bool operator==(const Date &date1) const;
+};
+
+class InvalidDate
+{
+	Date dt;
+
+public:
+	InvalidDate(Date d);
+	Date getDate() const;
 };
 
 #endif
