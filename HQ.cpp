@@ -2,11 +2,12 @@
 
 using namespace std;
 
-HQ::HQ()
+HQ::HQ() : parts(Part("","",0))
 {
     vector<Member*> empty_members;
     vector<User*> empty_active_users;
     vector <Station *> empty_stations;
+
 
     members = empty_members;
     active_users = empty_active_users;
@@ -494,7 +495,7 @@ void HQ::Options_Menu(Date &global_date)
 	cout << "+-----------------------+------------------------+\n"
 		<< "| 1 - Add/Remove member | 2 - Add/Remove station |\n"
 		<< "+-----------------------+------------------------+\n"
-		<< "| 3 - Fast Forward      | 4 - Buy parts          |\n"
+		<< "| 3 - Fast Forward      | 4 - Bike Shop          |\n"
 		<< "+-----------------------+------------------------+\n"
 		<< "| 5 - Buy bikes         | 6 - Destroy bikes      |\n"
 		<< "+-----------------------+------------------------+\n"
@@ -519,7 +520,7 @@ void HQ::Options_Menu(Date &global_date)
 			fast_forward_menu(*this, global_date);
 
 		case 4:
-
+			part_menu();
 			break;
 
 		case 5:
@@ -533,6 +534,204 @@ void HQ::Options_Menu(Date &global_date)
 		case 7:
 			break;
 	}
+}
+
+void HQ::part_menu()
+{
+	int opt;
+
+	do
+	{
+		cout << "+---------------------------------------------+\n"
+			<< "| 1 - Buy bike  Part                          |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 2 - Cheapest supplier                       |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 3 - Add or remove Parts                     |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 4 - Check suppliers and prices              |\n"
+			<< "+---------------------------------------------+\n"
+			<< "| 5 - Go back                                 |\n"
+			<< "+---------------------------------------------+\n" << endl;
+
+		cin >> opt;
+		InvalidInput(5, opt);
+
+
+		switch (opt)
+		{
+		case 1:
+		 buy_part_func();
+			break;
+
+		case 2:
+		 cheapest_supplier();
+			break;
+
+		case 3:
+		 Add_remove_part_menu();
+			break;
+
+		case 4:
+		 show_suppliers();
+			break;
+
+		case 5: 
+			break;
+		}
+
+	}while (opt != 5);
+
+}
+
+void HQ::buy_part_func()
+{
+
+}
+
+void HQ::show_suppliers()
+{
+	vector<double> prices;
+	vector<string> suppliers;
+
+	BSTItrIn<Part> it(parts);
+	string part_name;
+
+	cout << "Part's name: ";
+	cin >> part_name;
+
+	while (!it.isAtEnd())
+	{
+		if (it.retrieve().getNome() == part_name)
+		{
+			prices.push_back(it.retrieve().getPreco());
+			suppliers.push_back(it.retrieve().getFornecedor());
+
+		}
+		
+
+		it.advance();
+
+
+	}
+
+	cout << "---------------------------------------" << endl;
+
+	for (unsigned int  i = 0; i < prices.size(); i++)
+	{
+
+		cout << "Supplier: " << suppliers.at(i) << endl;
+		cout << "Price: " << prices.at(i) << endl;
+		cout << "---------------------------------------" << endl;
+
+	}
+
+
+}
+
+void HQ::removePart() 
+{
+	string part_name;
+	string part_supplier;
+	double part_price;
+	bool removed = false;
+	int counter = 0;
+	
+
+	cout << "Part's name: ";
+	getline(cin, part_name);
+
+	cout << "Part's supplier: ";
+	getline(cin, part_supplier);
+
+	cout << "Part's price: ";
+	cin >> part_price;
+
+
+		if (part_price < 0 || part_price > numeric_limits<double>::max())
+		{
+			cout << "Price out of range" << endl;
+			return;
+		}
+
+	
+	BSTItrIn<Part> it(parts);
+
+	while (!it.isAtEnd())
+	{
+		if (it.retrieve().getFornecedor() == part_supplier && it.retrieve().getNome() == part_name  &&  it.retrieve().getPreco() == part_price)
+		{
+			removed = true;
+			parts.remove(it.retrieve());
+			break;
+			
+		}
+
+		it.advance();
+	}
+
+	if (removed)
+	{
+		cout << "Part sucessfully removed" << endl;
+	}
+	else
+	{
+		cout << "No parts found" << endl;
+	}
+
+}
+
+void HQ::cheapest_supplier()
+{
+
+	string part_name;
+	string part_supplier = "";
+	double min = numeric_limits<double>::max();
+	bool found = false;
+
+	cout << "Part's name: ";
+	cin >> part_name;
+
+	BSTItrIn<Part> it(parts);
+
+
+	while (!it.isAtEnd())
+	{
+
+		if (it.retrieve().getNome() == part_name)
+		{
+
+			found = true;
+
+			if (it.retrieve().getPreco() < min)
+			{
+				min = it.retrieve().getPreco();
+				part_supplier = it.retrieve().getFornecedor();
+
+			}
+
+
+		}
+
+		it.advance();
+
+
+	}
+
+	if (found)
+	{
+		cout << "INFO :::" << endl;
+		cout << min << endl;
+		cout << part_supplier << endl;
+		cout << "---------" << endl;
+	}
+	else
+	{
+		cout << "Part not found" << endl;
+	}
+	
+
+
 }
 
 void HQ::Destruction_Menu(const Date &global_date)
@@ -583,6 +782,73 @@ void HQ::Destruction_Menu(const Date &global_date)
 
 }
 
+void HQ::addPart()
+{
+	string part_name;
+	string part_supplier;
+	double part_price;
+
+	cout << "Part's name: ";
+	getline(cin, part_name);
+
+	cout << "Part's supplier: ";
+	getline(cin, part_supplier);
+
+	cout << "Part's price: ";
+	cin >> part_price;
+
+
+	Part nova(part_name, part_supplier, part_price);
+
+	if (nova.getPreco() < 0 || nova.getPreco() > numeric_limits<double>::max())
+	{
+		cout << "Price out of range" << endl;
+		return;
+	}
+
+	parts.insert(nova);
+
+
+}
+
+void HQ::Add_remove_part_menu()
+{
+	int opt;
+
+	do
+	{
+		cout << "+-------------------+\n"
+			<< "| 1 - Add Part      |\n"
+			<< "+-------------------+\n"
+			<< "| 2 - Remove Part   |\n"
+			<< "+-------------------+\n"
+			<< "| 3 - Go back       |\n"
+			<< "+-------------------+\n" << endl;
+
+		cin >> opt;
+		InvalidInput(3, opt);
+		cin.clear();
+		cin.ignore(1000, '\n');
+
+		
+			switch (opt)
+			{
+			case 1:
+				addPart();
+				break;
+			case 2:
+				removePart();
+				break;
+
+			case 3:
+				break;
+			}
+		
+		
+	} while (opt != 3);
+
+}
+
 void HQ::Add_remove_member_menu()
 {
 	int opt;
@@ -593,9 +859,9 @@ void HQ::Add_remove_member_menu()
 			<< "| 1 - Add member    |\n"
 			<< "+-------------------+\n"
 			<< "| 2 - Remove member |\n"
-			<< "+-------------------+\n" 
+			<< "+-------------------+\n"
 			<< "| 3 - Go back       |\n"
-			<< "+-------------------+\n"<< endl;
+			<< "+-------------------+\n" << endl;
 
 		cin >> opt;
 		InvalidInput(3, opt);
@@ -622,7 +888,7 @@ void HQ::Add_remove_member_menu()
 			cout << "There's already another member with the same name.\n";
 		}
 	} while (opt != 3);
-	
+
 }
 
 void HQ::Add_remove_station_menu(Date global_date)
@@ -1155,6 +1421,35 @@ void HQ::read_info(Date global_date)
 
 	sstr.clear();
 	read.close();
+
+	read.open("Parts.txt");
+
+
+	string part_name;
+	string part_supplier;
+	double part_price;
+
+	while (getline(read, txt_line))
+	{
+
+		sstr.str(txt_line);
+
+		sstr >> part_name >> comma >> part_supplier >> comma >> part_price;
+
+		Part *nova = new Part(part_name, part_supplier, part_price);
+
+		parts.insert(*nova);
+
+		sstr.clear();
+
+
+	}
+	sstr.clear();
+	read.close();
+
+
+	
+
 }
 
 void HQ::write_info() const
@@ -1162,6 +1457,12 @@ void HQ::write_info() const
 	ofstream write;
 	unsigned int i, j;
 	HashTabDestroyForms::iterator it;
+	BSTItrIn<Part> BSTit(parts);
+
+	
+
+	
+
 
 	write.open("Active_Users.txt");
 
@@ -1215,6 +1516,29 @@ void HQ::write_info() const
 	}
 
 	write.close();
+
+
+	write.open("Changed_Parts.txt");
+
+	while (!BSTit.isAtEnd())
+	{
+
+
+
+		write << BSTit.retrieve().getNome() << " ; " << BSTit.retrieve().getFornecedor() << " ; " << BSTit.retrieve().getPreco() << endl;
+	
+		BSTit.advance();
+
+		
+
+
+
+	}
+	
+	
+
+	write.close();
+
 }
 
 void HQ::destroy_bike(Date g_date)

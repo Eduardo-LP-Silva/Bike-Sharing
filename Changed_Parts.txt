@@ -1,0 +1,5 @@
+assento ; TNovoBikes ; 4.2
+guiador ; SKRRAA ; 0.9
+guiador ; LCOM ; 1
+guiador ; LCOM ; 5
+pedal ; chicoTour ; 69.69

@@ -5,11 +5,16 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <limits>
 #include <unordered_set>
 #include "User.h"
 #include "Station.h"
 #include "Funcs.h"
 #include "Destroy.h"
+#include "Part.h"
+#include "BST.h"
+
+
 
 using namespace std;
 
@@ -34,6 +39,8 @@ class HQ
     vector<User *> active_users;
     vector<Station *> stations;
 	HashTabDestroyForms hash_table;
+	BST<Part> parts;
+
 
 public:
     HQ(); //Constructor
@@ -101,7 +108,14 @@ public:
     int find_Member(string name); //Returns the index of the member in the HQ vector, else returns -1
     int find_ActiveUser(string name);  //Returns the index of the active user in the HQ vector, else returns -1
 	
-	
+	//Binary tree
+	void cheapest_supplier();
+	void Add_remove_part_menu();
+	void part_menu();
+	void addPart();
+	void removePart();
+	void show_suppliers();
+	void buy_part_func();
 	
 	
 	
