@@ -7,11 +7,13 @@ HQ::HQ() : parts(Part("","",0))
     vector<Member*> empty_members;
     vector<User*> empty_active_users;
     vector <Station *> empty_stations;
+    priority_queue<Shop> empty_shops;
 
 
     members = empty_members;
     active_users = empty_active_users;
     stations = empty_stations;
+    shops = empty_shops;
 }
 
 void HQ::addActiveUser(User *user)
@@ -201,6 +203,16 @@ vector<Member *> HQ::getMembers() const
 vector<Station *> HQ::getStations() const
 {
 	return stations;
+}
+
+priority_queue<Shop> HQ::getShops() const {
+
+    return shops;
+}
+
+void HQ::setShops(priority_queue<Shop> new_shops) {
+
+    this->shops = new_shops;
 }
 
 int HQ::find_Member(string name)
@@ -492,15 +504,15 @@ void HQ::Options_Menu(Date &global_date)
 {
 	int opt;
 
-	cout << "+-----------------------+------------------------+\n"
-		<< "| 1 - Add/Remove member | 2 - Add/Remove station |\n"
-		<< "+-----------------------+------------------------+\n"
-		<< "| 3 - Fast Forward      | 4 - Bike Shop          |\n"
-		<< "+-----------------------+------------------------+\n"
-		<< "| 5 - Buy bikes         | 6 - Destroy bikes      |\n"
-		<< "+-----------------------+------------------------+\n"
-		<< "|                   7 - Go back                  |\n"
-		<< "+-----------------------+------------------------+\n" << endl;
+	cout <<"+------------------------+------------------------+\n"
+		<< "| 1 - Add/Remove member | 2 - Add/Remove station  |\n"
+		<< "+-----------------------+-------------------------+\n"
+		<< "| 3 - Fast Forward      | 4 - Bike Workshop       |\n"
+		<< "+-----------------------+-------------------------+\n"
+		<< "| 5 - Bike Shop         | 6 - Destroy bikes       |\n"
+		<< "+-----------------------+-------------------------+\n"
+		<< "|                   7 - Go back                   |\n"
+		<< "+-----------------------+-------------------------+\n" << endl;
 	cin >> opt;
 	InvalidInput(7, opt);
 	cin.clear();
@@ -524,7 +536,7 @@ void HQ::Options_Menu(Date &global_date)
 			break;
 
 		case 5:
-
+			BikeShop_Menu();
 			break;
 
 		case 6:
@@ -534,6 +546,223 @@ void HQ::Options_Menu(Date &global_date)
 		case 7:
 			break;
 	}
+}
+
+int getNBikes() {
+
+    int opt;
+
+    cout << "Number of bikes: ";
+    cin >> opt;
+
+    while (opt <= 0 || cin.fail()) {
+
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << endl << "Invalid option (Number of bikes must be greater than 0)! Please try again\n" << endl;
+        cin >> opt;
+
+    }
+
+    return opt;
+}
+vector<bike_stock> HQ::createPurchase() {
+
+    bike_stock bike_purchase;
+    vector<bike_stock> new_purchase;
+    int nbikes;
+
+    while(1) {
+        int opt;
+
+        cout << "+------------------+\n"
+             << "|   Type of bike   |\n"
+             << "+------------------+\n"
+             << "|     1 - Urban    |\n"
+             << "+------------------+\n"
+             << "| 2 - Simple Urban |\n"
+             << "+------------------+\n"
+             << "|     3 - Child    |\n"
+             << "+------------------+\n"
+             << "|    4 - Racing    |\n"
+             << "+------------------+\n"
+             << "|    5 - End       |\n"
+             << "+------------------+\n"
+             << "|  6 - Cancel buy  |\n"
+             << "+------------------+\n" << endl;
+
+        cin >> opt;
+        InvalidInput(5, opt);
+
+        switch (opt) {
+            case 1:
+                bike_purchase.first = UB;
+                nbikes = getNBikes();
+                break;
+
+            case 2:
+                bike_purchase.first = US;
+                nbikes = getNBikes();
+                break;
+
+            case 3:
+                bike_purchase.first = CH;
+                nbikes = getNBikes();
+                break;
+
+            case 4:
+                bike_purchase.first = RC;
+                nbikes = getNBikes();
+                break;
+            case 5:
+                break;
+        }
+
+
+
+
+        bike_purchase.second = nbikes;
+        new_purchase.push_back(bike_purchase);
+    }
+
+    return new_purchase;
+
+}
+
+int HQ::HandlePurchase() {
+
+    vector<bike_stock> new_purchase = createPurchase();
+	priority_queue<Shop> shops_list = this->shops, aux;
+	Shop s1;;
+
+    while(!shops_list.empty()) {
+
+		s1 = shops_list.top();
+
+        if (s1.makePurchase(new_purchase) == 0){
+
+			shops_list.pop();
+			shops_list.push(s1);
+
+			while(!aux.empty()) {
+
+				shops_list.push(aux.top());
+				shops_list.pop();
+
+			}
+
+			return 0;
+		}
+
+
+        shops_list.pop();
+    }
+
+    if(shops_list.empty()) {
+
+		while (!aux.empty()) {
+			shops_list.push(aux.top());
+			aux.pop();
+
+		}
+
+		return 1;
+	}
+
+}
+
+void HQ::printTopFive() {
+
+	unsigned int size;
+
+	if (shops.size() >= 5)
+		size = 5;
+	else {
+		size = shops.size();
+		cout << "There are only " << size << " registered" << endl;
+	}
+
+	for(unsigned int i = 0; i < size; i++) {
+		shops.top().showShop();
+		shops.pop();
+	}
+
+}
+
+string HQ::askShopName() {
+
+	string in;
+
+	do{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Type the name of the shop or l to leave " << endl;
+		getline(cin, in);
+
+	}
+	while(cin.fail());
+
+	return in;
+}
+
+void HQ::searchShop() {
+
+	priority_queue<Shop> shops_list = shops;
+	string name = askShopName();
+
+	if (name == "l")
+		return;
+	while(!shops_list.empty()) {
+
+		if (shops_list.top().getName() == name) {
+			shops_list.top().showShop();
+		}
+	}
+
+	if (shops_list.empty()) {
+
+		cout << "Shop not found" << endl;
+	}
+
+}
+void HQ::BikeShop_Menu()
+{
+    int opt;
+
+
+    cout <<"+-----------------------+\n"
+         << "| 1 - Purchase bikes    |\n"
+         << "+-----------------------+\n"
+         << "| 2 - Search Shop       |\n"
+         << "+-----------------------+\n"
+         << "| 3 - Shop Top 5        |\n"
+         << "+-----------------------+\n"
+         << "| 4 - Go back           |\n"
+         << "+-----------------------+\n" << endl;
+    cin >> opt;
+    InvalidInput(4, opt);
+    cin.clear();
+    cin.ignore(1000, '\n');
+
+    switch (opt)
+    {
+        case 1:
+            if (HandlePurchase() == 1)
+                cout << "No stock that satisfies the purchase was found" << endl;
+            else if (HandlePurchase() == 0)
+                cout << "Purchase successful! Thank you!" << endl;
+            break;
+
+        case 2:
+            searchShop();
+            break;
+
+        case 3:
+            printTopFive();
+
+        case 4:
+            break;
+    }
 }
 
 void HQ::part_menu()
@@ -1456,7 +1685,7 @@ void HQ::write_info() const
 {
 	ofstream write;
 	unsigned int i, j;
-	HashTabDestroyForms::iterator it;
+	HashTabDestroyForms::const_iterator it;
 	BSTItrIn<Part> BSTit(parts);
 
 	
@@ -1647,7 +1876,7 @@ void HQ::destroy_bike(Date g_date)
 
 void HQ::show_bikes_to_destroy() const
 {
-	HashTabDestroyForms::iterator it;
+	HashTabDestroyForms::const_iterator it;
 
 	cout << endl
 		<< "Bike type | Date of destruction | Destoyed\n";

@@ -13,8 +13,7 @@
 #include "Destroy.h"
 #include "Part.h"
 #include "BST.h"
-
-
+#include "Shop.h"
 
 using namespace std;
 
@@ -40,6 +39,7 @@ class HQ
     vector<Station *> stations;
 	HashTabDestroyForms hash_table;
 	BST<Part> parts;
+	priority_queue<Shop> shops;
 
 
 public:
@@ -55,6 +55,17 @@ public:
 	vector<User *> getActiveUsers() const; //Returns the active users vector
 	vector<Member *> getMembers() const; //Returns the members vector
 	vector<Station *> getStations() const; //Returns the stations vector
+	priority_queue<Shop> getShops() const; //Returns the shops priority queue
+
+    //SHOP Methods
+    void BikeShop_Menu();
+    void setShops(priority_queue<Shop> new_shops);
+    vector<bike_stock> createPurchase();
+    int HandlePurchase();
+    void printTopFive();
+    void searchShop();
+    string askShopName();
+
 
 	// Menus
 
