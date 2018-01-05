@@ -41,7 +41,6 @@ class HQ
 	BST<Part> parts;
 	priority_queue<Shop> shops;
 
-
 public:
     HQ(); //Constructor
 

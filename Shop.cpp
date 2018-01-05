@@ -1,7 +1,7 @@
 #include "Shop.h"
 
 //OPERATOR OVERLOADING
-ostream& Shop::operator<< (ostream& out, const bike_t& bike) {
+ostream& operator<< (ostream& out, const bike_t& bike) {
 
     out << enumtostr(bike);
 
@@ -40,20 +40,16 @@ bike_t strtoenum(string type) {
 
     bike_t bike;
 
-    switch(type) {
-        case "UB":
-            bike = UB;
-            break;
-        case "US":
-            bike = US;
-            break;
-        case "CH":
-            bike = CH;
-            break;
-        case "RC":
-            bike = RC;
-            break;
-    }
+	if (type == "US")
+		bike = US;
+	else
+		if (type == "UB")
+			bike = UB;
+		else
+			if (type == "CH")
+				bike = CH;
+			else
+				bike = RC;
 
     return bike;
 }
@@ -150,7 +146,13 @@ void Shop::updateReputation() {
     cout << "Purchase rating (number between 1 and 5): ";
     cin >> rat;
 
-    InvalidInput(5, rat);
+	while (cin.fail() || (rat < 1 || rat > 5))
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << endl << "Invalid option! Please try again\n" << endl;
+		cin >> rat;
+	}
 
     rep = this->getReputation();
     this->setReputation(calculateReputation(rep, rat));
@@ -241,24 +243,6 @@ int Shop::makePurchase(vector<bike_stock> purchase) {
     }
 
     return 1;
-
-}
-
-void HQ::printTopFive() {
-
-    unsigned int size;
-
-    if (shops_list.size() >= 5)
-        size = 5;
-    else {
-        size = shops_list.size();
-        cout << "There are only " << size << " registered" << endl;
-    }
-
-    for(unsigned int i = 0; i < size; i++) {
-        shops_list.top().showShop();
-        shops_list.pop();
-    }
 
 }
 

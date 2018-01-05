@@ -1,3 +1,6 @@
+#ifndef AEDA_P1_SHOP_H
+#define AEDA_P1_SHOP_H
+
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -8,10 +11,8 @@ using namespace std;
 enum bike_t {UB, US, RC, CH};
 typedef pair<bike_t, int> bike_stock;
 
-
 class Shop
 {
-
     string name;
     int reputation;
     vector< bike_stock > stock;
@@ -37,13 +38,10 @@ public:
     int removeStock(vector<bike_stock> purchase_req);
 
     //PURCHASE FUNCS
-    bool createPurchase(vector<bike_stock>& new_purchase);
     int makePurchase(vector<bike_stock> purchase);
-    int HandlePurchase(priority_queue<Shop> shops_list);
 
     //PRINT SHOPS FUNCS
     void showShop() const;
-    void printTopFive(priority_queue<Shop> shops_list);
 
     //REPUTATION FUNCS
     void updateReputation();
@@ -60,3 +58,5 @@ public:
 
 string enumtostr(bike_t type);
 bike_t strtoenum(string type);
+
+#endif

@@ -671,20 +671,24 @@ int HQ::HandlePurchase() {
 
 }
 
-void HQ::printTopFive() {
+void HQ::printTopFive() 
+{
 
 	unsigned int size;
+	priority_queue<Shop> shops_list = shops;
 
-	if (shops.size() >= 5)
+	if (shops_list.size() >= 5)
 		size = 5;
-	else {
-		size = shops.size();
+	else 
+	{
+		size = shops_list.size();
 		cout << "There are only " << size << " registered" << endl;
 	}
 
-	for(unsigned int i = 0; i < size; i++) {
-		shops.top().showShop();
-		shops.pop();
+	for(unsigned int i = 0; i < size; i++) 
+	{
+		shops_list.top().showShop();
+		shops_list.pop();
 	}
 
 }
@@ -1688,11 +1692,6 @@ void HQ::write_info() const
 	HashTabDestroyForms::const_iterator it;
 	BSTItrIn<Part> BSTit(parts);
 
-	
-
-	
-
-
 	write.open("Active_Users.txt");
 
 	for (i = 0; i < active_users.size(); i++)
@@ -1751,23 +1750,13 @@ void HQ::write_info() const
 
 	while (!BSTit.isAtEnd())
 	{
-
-
-
 		write << BSTit.retrieve().getNome() << " ; " << BSTit.retrieve().getFornecedor() << " ; " << BSTit.retrieve().getPreco() << endl;
 	
 		BSTit.advance();
 
-		
-
-
-
 	}
-	
-	
 
 	write.close();
-
 }
 
 void HQ::destroy_bike(Date g_date)
