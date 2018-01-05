@@ -19,6 +19,7 @@ class Shop
 
 public:
     Shop();
+	Shop(int rep, string name, vector<bike_stock> bikest);
     Shop(int rep, string name);
     bike_stock CreateBikeStock(bike_t bike, int stock);
 

@@ -71,7 +71,15 @@ Shop::Shop() {
     this->stock.push_back(CreateBikeStock(bike, bike_st));
 }
 
-Shop::Shop(int rep, string name) {
+Shop::Shop(int rep, string name, vector<bike_stock> bikest)
+{
+	this->reputation = rep;
+	this->name = name;
+	this->stock = bikest;
+}
+
+Shop::Shop(int rep, string name) 
+{
 
     this->reputation = rep;
     this->name = name;
@@ -175,7 +183,8 @@ void Shop::addtoStock(bike_t type, int number) {
 
 }
 
-void Shop::showShop() const {
+void Shop::showShop() const 
+{
 
     vector< bike_stock > temp = this->stock;
 
@@ -183,47 +192,45 @@ void Shop::showShop() const {
     cout << "Reputation: " << this->reputation << endl;
     cout << "Bike Stock:" << endl;
 
-    for(auto const &bike_st : temp) {
+    for(unsigned int i = 0; i < temp.size(); i++) 
+	{
 
-        cout << bike_st.first << " - " << bike_st.second << endl;
+        cout << temp.at(i).first << " - " << temp.at(i).second << endl;
     }
 
 }
 
-bool Shop::checkStock(vector<bike_stock> purchase_request) const {
-
+bool Shop::checkStock(vector<bike_stock> purchase_request) const 
+{
     vector< bike_stock > temp = this->stock;
 
-    //create exception??
-//    for(const auto &req : purchase_request) {
-//
-//    }
-
-    for(const auto &bike_request : purchase_request) {
-
-        for(const auto &search : temp) {
+    for(const auto &bike_request : purchase_request) 
+	{
+        for(const auto &search : temp) 
+		{
 
             if (search.first == bike_request.first && search.second < bike_request.second)
                 return false;
 
         }
-
     }
 
     return true;
-
 }
 
-int Shop::removeStock(vector<bike_stock> purchase_req) {
-
+int Shop::removeStock(vector<bike_stock> purchase_req) 
+{
     vector<bike_stock> temp_stock = this->getStock();
 
     for(const auto &bike_request : purchase_req) {
 
-        for(auto &search : temp_stock) {
-
-            if (search.first == bike_request.first)
-                search.second -= bike_request.second;
+        for(auto &search : temp_stock) 
+		{
+			if (search.first == bike_request.first)
+			{
+				search.second -= bike_request.second;
+				break;
+			}
 
         }
 
@@ -237,7 +244,8 @@ int Shop::removeStock(vector<bike_stock> purchase_req) {
 
 int Shop::makePurchase(vector<bike_stock> purchase) {
 
-    if (this->checkStock(purchase)){
+    if (this->checkStock(purchase))
+	{
         this->removeStock(purchase);
         return 0;
     }

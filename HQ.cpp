@@ -566,15 +566,17 @@ int getNBikes() {
 
     return opt;
 }
-vector<bike_stock> HQ::createPurchase() {
+vector<bike_stock> HQ::createPurchase() 
+{
 
     bike_stock bike_purchase;
     vector<bike_stock> new_purchase;
     int nbikes;
+	bool end = false;
+	int opt;
 
-    while(1) {
-        int opt;
-
+    while(1) 
+	{
         cout << "+------------------+\n"
              << "|   Type of bike   |\n"
              << "+------------------+\n"
@@ -592,9 +594,10 @@ vector<bike_stock> HQ::createPurchase() {
              << "+------------------+\n" << endl;
 
         cin >> opt;
-        InvalidInput(5, opt);
+        InvalidInput(6, opt);
 
-        switch (opt) {
+        switch (opt) 
+		{
             case 1:
                 bike_purchase.first = UB;
                 nbikes = getNBikes();
@@ -614,61 +617,68 @@ vector<bike_stock> HQ::createPurchase() {
                 bike_purchase.first = RC;
                 nbikes = getNBikes();
                 break;
+
             case 5:
+				end = true;
                 break;
+
+			case 6:
+				new_purchase.clear();
+				return new_purchase;
         }
 
-
-
+		if (end)
+			break;
 
         bike_purchase.second = nbikes;
         new_purchase.push_back(bike_purchase);
     }
 
     return new_purchase;
-
 }
 
-int HQ::HandlePurchase() {
+int HQ::HandlePurchase() 
+{
 
     vector<bike_stock> new_purchase = createPurchase();
 	priority_queue<Shop> shops_list = this->shops, aux;
-	Shop s1;;
+	Shop s1;
 
-    while(!shops_list.empty()) {
-
+    while(!shops_list.empty()) 
+	{
 		s1 = shops_list.top();
-
-        if (s1.makePurchase(new_purchase) == 0){
-
+		
+        if (s1.makePurchase(new_purchase) == 0)
+		{
 			shops_list.pop();
 			shops_list.push(s1);
 
-			while(!aux.empty()) {
-
+			while(!aux.empty()) 
+			{
 				shops_list.push(aux.top());
-				shops_list.pop();
-
+				aux.pop();
 			}
 
+			setShops(shops_list);
 			return 0;
 		}
 
-
+		aux.push(shops_list.top());
         shops_list.pop();
     }
 
-    if(shops_list.empty()) {
-
-		while (!aux.empty()) {
+    if(shops_list.empty()) 
+	{
+		while (!aux.empty()) 
+		{
 			shops_list.push(aux.top());
 			aux.pop();
-
 		}
 
 		return 1;
 	}
 
+	return 1;
 }
 
 void HQ::printTopFive() 
@@ -693,80 +703,99 @@ void HQ::printTopFive()
 
 }
 
-string HQ::askShopName() {
-
+string HQ::askShopName() 
+{
 	string in;
 
-	do{
+	cout << "Type the name of the shop or l to leave " << endl;
+	getline(cin, in);
+
+	while (cin.fail())
+	{
 		cin.clear();
 		cin.ignore(1000, '\n');
-		cout << "Type the name of the shop or l to leave " << endl;
+		cout << "Invalid Input. Please try again.\n";
 		getline(cin, in);
-
 	}
-	while(cin.fail());
 
 	return in;
 }
 
-void HQ::searchShop() {
+void HQ::searchShop() 
+{
 
 	priority_queue<Shop> shops_list = shops;
 	string name = askShopName();
 
 	if (name == "l")
 		return;
-	while(!shops_list.empty()) {
+	while(!shops_list.empty()) 
+	{
 
-		if (shops_list.top().getName() == name) {
+		if (shops_list.top().getName() == name) 
+		{
 			shops_list.top().showShop();
+
+			return;
 		}
+
+		shops_list.pop();
 	}
 
-	if (shops_list.empty()) {
+	if (shops_list.empty()) 
+	{
 
 		cout << "Shop not found" << endl;
 	}
 
 }
+
 void HQ::BikeShop_Menu()
 {
-    int opt;
+    int opt = 0;
+	int purchase;
+
+	while (opt != 4)
+	{
 
 
-    cout <<"+-----------------------+\n"
-         << "| 1 - Purchase bikes    |\n"
-         << "+-----------------------+\n"
-         << "| 2 - Search Shop       |\n"
-         << "+-----------------------+\n"
-         << "| 3 - Shop Top 5        |\n"
-         << "+-----------------------+\n"
-         << "| 4 - Go back           |\n"
-         << "+-----------------------+\n" << endl;
-    cin >> opt;
-    InvalidInput(4, opt);
-    cin.clear();
-    cin.ignore(1000, '\n');
+		cout << "+-----------------------+\n"
+			<< "| 1 - Purchase bikes    |\n"
+			<< "+-----------------------+\n"
+			<< "| 2 - Search Shop       |\n"
+			<< "+-----------------------+\n"
+			<< "| 3 - Shop Top 5        |\n"
+			<< "+-----------------------+\n"
+			<< "| 4 - Go back           |\n"
+			<< "+-----------------------+\n" << endl;
+		cin >> opt;
+		InvalidInput(4, opt);
+		cin.clear();
+		cin.ignore(1000, '\n');
 
-    switch (opt)
-    {
-        case 1:
-            if (HandlePurchase() == 1)
-                cout << "No stock that satisfies the purchase was found" << endl;
-            else if (HandlePurchase() == 0)
-                cout << "Purchase successful! Thank you!" << endl;
-            break;
+		switch (opt)
+		{
+		case 1:
+			
+			purchase = HandlePurchase();
 
-        case 2:
-            searchShop();
-            break;
+			if (purchase == 1)
+				cout << "No stock that satisfies the purchase was found" << endl;
+			else if (purchase == 0)
+				cout << "Purchase successful! Thank you!" << endl;
+			break;
 
-        case 3:
-            printTopFive();
+		case 2:
+			searchShop();
+			break;
 
-        case 4:
-            break;
-    }
+		case 3:
+			printTopFive();
+
+		case 4:
+			break;
+		}
+	}
 }
 
 void HQ::part_menu()
@@ -1680,9 +1709,37 @@ void HQ::read_info(Date global_date)
 	sstr.clear();
 	read.close();
 
+	read.open("shops.txt");
 
-	
+	bike_stock stock_bike;
+	vector<bike_stock> bikest;
+	int rep;
+	string bname, biket, nbikes;
+	Shop *shop;
 
+	while (getline(read, txt_line))
+	{
+		bname = txt_line;
+		getline(read, txt_line);
+		rep = stoi(txt_line);
+
+		for (unsigned int d = 0; d < 4; d++) 
+		{
+			getline(read, txt_line);
+			sstr.str(txt_line);
+			sstr >> biket >> comma >> nbikes;
+			stock_bike.first = strtoenum(biket);
+			stock_bike.second = stoi(nbikes);
+
+			bikest.push_back(stock_bike);
+			sstr.clear();
+		}
+		shop = new Shop(rep, bname, bikest);
+		shops.push(*shop);
+		bikest.clear();
+	}
+
+	read.close(); 
 }
 
 void HQ::write_info() const
@@ -1754,6 +1811,26 @@ void HQ::write_info() const
 	
 		BSTit.advance();
 
+	}
+
+	write.close();
+
+	write.open("Shops.txt");
+
+	priority_queue<Shop> copy_shops = shops;
+
+	while (!copy_shops.empty())
+	{
+		write << copy_shops.top().getName() << endl
+			<< copy_shops.top().getReputation() << endl;
+
+		for (i = 0; i < 4; i++) 
+		{
+
+			write << copy_shops.top().getStock().at(i).first << " ; " << copy_shops.top().getStock().at(i).second << endl;
+		}
+
+		copy_shops.pop();
 	}
 
 	write.close();
