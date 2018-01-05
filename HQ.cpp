@@ -1678,6 +1678,7 @@ void HQ::read_info(Date global_date)
 	Bike *user_bike, *station_bike, *destruct_bike;
 	User *ready_active_user = new User("null");
 	Station *ready_station;
+	Destroy_Form *df;
 
 	read.open("Members.txt");
 
@@ -1815,8 +1816,12 @@ void HQ::read_info(Date global_date)
 		sstr >> day >> comma >> month >> comma >> hour >> comma >> minute;
 		
 		Date *d = new Date(month, day, hour, minute);
+		df = new Destroy_Form(destruct_bike, *d);
 
-		hash_table.insert(Destroy_Form(destruct_bike, *d));
+		if (global_date < *d)
+			df->setDestroyed();
+
+		hash_table.insert(*df);
 
 		sstr.clear();
 	}
