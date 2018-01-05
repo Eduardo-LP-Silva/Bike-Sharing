@@ -1,5 +1,5 @@
-pedal ; CRParts ; 69.69 
+pedal ; CRParts ; 68.62 
 assento ; TNovoBikes ; 4.20
 guiador ; AEParts ; 5
-guiador ; SinclairParts ; 0.9
+guiador ; SinclairParts ; 3
 guiador ; AEParts ; 1
