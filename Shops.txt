@@ -1,40 +1,40 @@
-AMD
+Amarc
 5
 UB ; 10
 US ; 30
 CH ; 10
 RC ; 45
-CORSAIR
-4
-UB ; 5
-US ; 30
-CH ; 10
-RC ; 45
-MSI
+MultiBikes
 4
 UB ; 0
 US ; 0
 CH ; 0
 RC ; 60
-NVIDIA
-3
-UB ; 10
-US ; 15
-CH ; 0
-RC ; 20
-ASUS
+Costco
+4
+UB ; 5
+US ; 30
+CH ; 10
+RC ; 45
+AllBikes
 3
 UB ; 3
 US ; 43
 CH ; 0
 RC ; 0
-INTEL
+NBikes
+3
+UB ; 10
+US ; 15
+CH ; 0
+RC ; 20
+IncB
 2
 UB ; 13
 US ; 0
 CH ; 0
 RC ; 20
-HP
+HB
 1
 UB ; 0
 US ; 30

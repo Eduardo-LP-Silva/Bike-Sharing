@@ -1,5 +1,5 @@
-pedal ; chicoTour ; 69.69 
+pedal ; CRParts ; 69.69 
 assento ; TNovoBikes ; 4.20
-guiador ; LCOM ; 5
-guiador ; SKRRAA ; 0.9
-guiador ; LCOM ; 1
+guiador ; AEParts ; 5
+guiador ; SinclairParts ; 0.9
+guiador ; AEParts ; 1

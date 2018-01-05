@@ -293,6 +293,8 @@ void HQ::FastForward_Time(int month, int day, int hour, int minute, Date &global
 {
 	Date init_date = global_date;
 	HashTabDestroyForms::iterator it;
+	Destroy_Form *df = new Destroy_Form(new Urban_b(global_date), global_date);
+	pair<HashTabDestroyForms::iterator, bool> p;
 
 	global_date.addMonth(month);
 	global_date.addDay(day);
@@ -309,11 +311,11 @@ void HQ::FastForward_Time(int month, int day, int hour, int minute, Date &global
 	for (it = hash_table.begin(); it != hash_table.end(); it++)
 		if ((it->getDate() < global_date) && (!it->isDestroyed()))
 		{
-			Destroy_Form df = *it;
-			df.setDestroyed();
-			it = hash_table.erase(it);
-			hash_table.insert(df);
-			it = hash_table.find(df);
+			*df = *it;
+			df->setDestroyed();
+			hash_table.erase(*it);
+			p = hash_table.insert(*df);
+			it = p.first;
 		}
 
 	Rand_Localization();
@@ -529,7 +531,8 @@ void HQ::Options_Menu(Date &global_date)
 			break;
 
 		case 3:
-			fast_forward_menu(*this, global_date);
+			fast_forward_menu(global_date);
+			break;
 
 		case 4:
 			part_menu();
@@ -545,6 +548,88 @@ void HQ::Options_Menu(Date &global_date)
 
 		case 7:
 			break;
+	}
+}
+
+void HQ::fast_forward_menu(Date &global_date)
+{
+	int opt, n_min, n_hr, n_d, n_mt;
+
+	cout << "+-------------------+\n"
+		<< "| 1 - Add minute(s) |\n"
+		<< "+-------------------+\n"
+		<< "| 2 - Add hour(s)   |\n"
+		<< "+-------------------+\n"
+		<< "| 3 - Add day(s)    |\n"
+		<< "+-------------------+\n"
+		<< "| 4 - Add month(s)  |\n"
+		<< "+-------------------+\n" << endl;
+
+	cin >> opt;
+
+	InvalidInput(4, opt);
+
+	switch (opt)
+	{
+	case 1:
+		cout << "Number of minutes: ";
+		cin >> n_min;
+
+		while (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1000, '\n');
+			cout << "Invalid Input. Please try again.\n";
+			cin >> n_min;
+		}
+
+		FastForward_Time(0, 0, 0, n_min, global_date);
+		break;
+
+	case 2:
+		cout << "Number of hours: ";
+		cin >> n_hr;
+
+		while (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1000, '\n');
+			cout << "Invalid Input. Please try again.\n";
+			cin >> n_hr;
+		}
+
+		FastForward_Time(0, 0, n_hr, 0, global_date);
+		break;
+
+	case 3:
+		cout << "Number of days: ";
+		cin >> n_d;
+
+		while (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1000, '\n');
+			cout << "Invalid Input. Please try again.\n";
+			cin >> n_d;
+		}
+
+		FastForward_Time(0, n_d, 0, 0, global_date);
+		break;
+
+	case 4:
+		cout << "Number of months: ";
+		cin >> n_mt;
+
+		while (cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1000, '\n');
+			cout << "Invalid Input. Please try again.\n";
+			cin >> n_mt;
+		}
+
+		FastForward_Time(n_mt, 0, 0, 0, global_date);
+		break;
 	}
 }
 
@@ -848,6 +933,56 @@ void HQ::part_menu()
 
 void HQ::buy_part_func()
 {
+	string part_name;
+	string part_supplier;
+	double part_price;
+	bool removed = false;
+	cin.ignore(1, '/n');
+	int counter = 0;
+
+
+	cout << "Part's name: ";
+	getline(cin, part_name);
+
+
+	cout << "Part's supplier: ";
+	getline(cin, part_supplier);
+
+
+	cout << "Part's price: ";
+	cin >> part_price;
+
+
+	if (part_price < 0 || part_price > numeric_limits<double>::max())
+	{
+		cout << "Price out of range" << endl;
+		return;
+	}
+
+
+	BSTItrIn<Part> it(parts);
+
+	while (!it.isAtEnd())
+	{
+		if (it.retrieve().getFornecedor() == part_supplier && it.retrieve().getNome() == part_name  &&  it.retrieve().getPreco() == part_price)
+		{
+			removed = true;
+			parts.remove(it.retrieve());
+			break;
+
+		}
+
+		it.advance();
+	}
+
+	if (removed)
+	{
+		cout << "Part sucessfully purchased " << endl;
+	}
+	else
+	{
+		cout << "Not Able to make purchase" << endl;
+	}
 
 }
 
@@ -1679,6 +1814,8 @@ void HQ::read_info(Date global_date)
 		Date *d = new Date(month, day, hour, minute);
 
 		hash_table.insert(Destroy_Form(destruct_bike, *d));
+
+		sstr.clear();
 	}
 
 	sstr.clear();

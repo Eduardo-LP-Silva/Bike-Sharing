@@ -76,6 +76,7 @@ public:
 	void Add_remove_member_menu(); //Interface regarding the addition or removal of members
 	void Add_remove_station_menu(Date global_date); //Interface regarding the addition or removal of stations
 	void Destruction_Menu(const Date &global_date);
+	void fast_forward_menu(Date &global_date);
 
 	//Bikes Menu
 
