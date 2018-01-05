@@ -1,5 +1,6 @@
-pedal ; CRParts ; 69.69 
-assento ; TNovoBikes ; 4.20
-guiador ; AEParts ; 5
+Corrente ; 2ChainzInc ; 12
+assento ; TNovoBikes ; 4.2
 guiador ; SinclairParts ; 0.9
 guiador ; AEParts ; 1
+guiador ; AEParts ; 5
+pedal ; CRParts ; 69.69

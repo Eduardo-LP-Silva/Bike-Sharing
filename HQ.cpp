@@ -729,6 +729,9 @@ int HQ::HandlePurchase()
 	priority_queue<Shop> shops_list = this->shops, aux;
 	Shop s1;
 
+	if (new_purchase.empty())
+		return 2;
+
     while(!shops_list.empty()) 
 	{
 		s1 = shops_list.top();
@@ -1940,7 +1943,7 @@ void HQ::write_info() const
 	write.close();
 
 
-	write.open("Changed_Parts.txt");
+	write.open("Parts.txt");
 
 	while (!BSTit.isAtEnd())
 	{
