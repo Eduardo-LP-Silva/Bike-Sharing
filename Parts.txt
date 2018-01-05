@@ -1,5 +1,5 @@
 Corrente ; 2ChainzInc ; 12
-assento ; TNovoBikes ; 4.2
+assento ; TNovoBikes ; 5
 guiador ; SinclairParts ; 0.9
 pedal ; CRParts ; 68.62 
 guiador ; AEParts ; 5
