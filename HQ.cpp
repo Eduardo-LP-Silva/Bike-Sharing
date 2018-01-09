@@ -1818,7 +1818,7 @@ void HQ::read_info(Date global_date)
 		Date *d = new Date(month, day, hour, minute);
 		df = new Destroy_Form(destruct_bike, *d);
 
-		if (global_date < *d)
+		if (*d < global_date)
 			df->setDestroyed();
 
 		hash_table.insert(*df);
