@@ -3,7 +3,7 @@
 This is a console project developed in the course "Algorithms and Data Structures" (AEDA) at FEUP. 
 It is designed to simulate a bike rental/sharing program between users in the same city. 
 
-# Overview:
+# Overview
 
 Upon start of the application, the user is greated with a main menu presenting 5 different options which will lead him to a 
 specific sub-meu:
