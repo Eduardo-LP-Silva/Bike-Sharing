@@ -121,6 +121,6 @@ This is the menu which holds the options regarding the purchase of bikes.
  
  ![uml](https://user-images.githubusercontent.com/32617691/41567425-0d94bfb6-7358-11e8-8501-386041b7053b.png)
  
- # Usage:
+ # Usage
  
  Just download the Executable folder and run the .exe from there (don't remove the .txt files from the folder).
