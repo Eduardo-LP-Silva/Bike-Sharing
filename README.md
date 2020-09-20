@@ -1,7 +1,6 @@
 # Bike Sharing
 
-This is a console project developed in the course "Algorithms and Data Structures" (AEDA) at FEUP. 
-It is designed to simulate a bike rental/sharing program between users in the same city. 
+Console application designed to simulate a bike rental/sharing program between users in the same city. 
 
 # Overview
 
